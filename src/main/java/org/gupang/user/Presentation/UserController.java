@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+// gateway 목록 /api/v1/admin/**, /api/v1/users/**, /api/v1/auth/**
 @Slf4j
 @RestController
 @RequestMapping("/api/v1")
@@ -58,7 +59,7 @@ public class UserController {
     }
 
     // 로그인 테스트용
-    @GetMapping("/test")
+    @GetMapping("/auth/test")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> getMyInfo(@AuthenticationPrincipal String username,
             @RequestHeader Map<String, String> headers) {
