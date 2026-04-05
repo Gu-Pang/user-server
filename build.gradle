@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.gupang:common:0.0.3-SNAPSHOT'
+	implementation 'org.gupang:common:0.0.4-SNAPSHOT'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	runtimeOnly 'org.postgresql:postgresql'
