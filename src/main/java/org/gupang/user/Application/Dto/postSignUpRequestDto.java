@@ -1,14 +1,17 @@
 package org.gupang.user.Application.Dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
+import org.gupang.common.entity.UserRole;
+import org.gupang.user.Domain.Entity.User;
+import org.gupang.user.Domain.Entity.UserStatus;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -36,4 +39,18 @@ public class postSignUpRequestDto {
     private String email;
 
     private String role;
+
+    public User toEntity(String encodedPassword,
+            UserRole userRole,
+            UserStatus initialStatus) {
+        return User.builder()
+                .username(this.username)
+                .password(encodedPassword)
+                .firstName(this.firstName)
+                .lastName(this.lastName)
+                .email(this.email)
+                .role(userRole)
+                .status(initialStatus)
+                .build();
+    }
 }

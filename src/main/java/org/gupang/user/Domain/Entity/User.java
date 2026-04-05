@@ -12,6 +12,8 @@ import java.util.UUID;
 import org.gupang.user.Infrastructure.Listener.UserEntitySyncListener;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.gupang.common.exception.CustomException;
+import org.gupang.user.Domain.Exception.UserErrorCode;
 
 @SQLDelete(sql = "UPDATE p_user SET deleted_at = CURRENT_TIMESTAMP WHERE user_id = ?")
 @SQLRestriction("deleted_at IS NULL")
@@ -58,5 +60,14 @@ public class User extends BaseEntity {
 
     @Column(unique = true)
     private String keycloakId;
+
+    public void validateUserStatus() {
+        if (this.status == UserStatus.PENDING) {
+            throw new CustomException(UserErrorCode.PENDING_APPROVAL);
+        }
+        if (this.status == UserStatus.REJECTED) {
+            throw new CustomException(UserErrorCode.REJECTED_USER);
+        }
+    }
 
 }
