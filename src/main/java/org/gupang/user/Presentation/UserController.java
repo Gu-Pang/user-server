@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class UserController {
 
     // 업체 유저 가입 신청
     @PostMapping("/users")
-    public ResponseEntity<postSignUpResponseDto> signUpCompany(@RequestBody postSignUpRequestDto requestDto) {
+    public ResponseEntity<postSignUpResponseDto> signUpCompany(@Valid @RequestBody postSignUpRequestDto requestDto) {
         requestDto.setRole("COMPANY");
         return ResponseEntity.ok(userService.signUp(requestDto));
     }
@@ -42,7 +43,7 @@ public class UserController {
     // 유저 생성
     @PostMapping("/admin/users")
     @PreAuthorize("hasAuthority('ROLE_MASTER')") // 오직 MASTER 권한자만 가능, 허브 관리자거는 따로 만들어야 할듯
-    public ResponseEntity<postSignUpResponseDto> signUpMaster(@RequestBody postSignUpRequestDto requestDto) {
+    public ResponseEntity<postSignUpResponseDto> signUpMaster(@Valid @RequestBody postSignUpRequestDto requestDto) {
         if (requestDto.getRole() == null || requestDto.getRole().isBlank()) {
             requestDto.setRole("DELIVERY");
         }
@@ -51,7 +52,7 @@ public class UserController {
 
     // 로그인
     @PostMapping("/auth/login")
-    public ResponseEntity<postLoginResponseDto> login(@RequestBody postLoginRequestDto requestDto,
+    public ResponseEntity<postLoginResponseDto> login(@Valid @RequestBody postLoginRequestDto requestDto,
             @RequestHeader Map<String, String> headers) {
         // log.info(responseDto.toString());
         log.info("headers: {}", headers);

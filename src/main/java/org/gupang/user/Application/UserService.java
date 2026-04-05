@@ -100,21 +100,9 @@ public class UserService {
 
     @Transactional
     public postSignUpResponseDto signUp(postSignUpRequestDto requestDto) {
-        // 유효성 검사
-        // Username: 4-10자. 소문자, 숫자만 허용
-        if (!java.util.regex.Pattern.matches("^[a-z0-9]{4,10}$", requestDto.getUsername())) {
-            throw new CustomException(UserErrorCode.INVALID_USERNAME);
-        }
-        // Password: 8-15자. 문자, 숫자, 특수문자만 허용
-        if (!java.util.regex.Pattern.matches("^[a-zA-Z0-9!@#$%^&*()_+={}\\[\\]|\\\\:;\"'<>,.?/~`-]{8,15}$",
-                requestDto.getPassword())) {
-            throw new CustomException(UserErrorCode.INVALID_PASSWORD);
-        }
-
-        // Role에 따른 초기 Status 결정
-        UserStatus initialStatus = requestDto.getRole().equalsIgnoreCase("MASTER")
-                ? UserStatus.APPROVED
-                : UserStatus.PENDING;
+        // Role 결정 및 초기 Status 결정
+        UserRole userRole = UserRole.valueOf(requestDto.getRole().toUpperCase());
+        UserStatus initialStatus = UserStatus.fromRole(userRole);
 
         // 로컬 DB 유저 객체 생성 (Keycloak ID는 나중에 set)
         User user = User.builder()
@@ -123,7 +111,7 @@ public class UserService {
                 .firstName(requestDto.getFirstName())
                 .lastName(requestDto.getLastName())
                 .email(requestDto.getEmail())
-                .role(UserRole.valueOf(requestDto.getRole().toUpperCase()))
+                .role(userRole)
                 .status(initialStatus)
                 .build();
 
@@ -182,7 +170,7 @@ public class UserService {
     @Transactional
     public void delete(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
 
         // 1. Keycloak 삭제
         if (user.getKeycloakId() != null) {
