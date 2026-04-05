@@ -32,13 +32,13 @@ public class UserEntitySyncListener {
     @PostPersist
     @PostUpdate
     public void syncToKeycloak(User user) {
-        if (user.getKeycloakId() == null) {
+        if (user.getUserId() == null) {
             return;
         }
 
         try {
             log.info("Syncing user {} to Keycloak...", user.getUsername());
-            UserRepresentation kcUser = keycloakAdmin.realm(realm).users().get(user.getKeycloakId()).toRepresentation();
+            UserRepresentation kcUser = keycloakAdmin.realm(realm).users().get(user.getUserId().toString()).toRepresentation();
 
             kcUser.setFirstName(user.getFirstName());
             kcUser.setLastName(user.getLastName());
@@ -54,7 +54,7 @@ public class UserEntitySyncListener {
             attributes.put("role", List.of(roleValue));
             kcUser.setAttributes(attributes);
 
-            keycloakAdmin.realm(realm).users().get(user.getKeycloakId()).update(kcUser);
+            keycloakAdmin.realm(realm).users().get(user.getUserId().toString()).update(kcUser);
         } catch (Exception e) {
             log.error("Failed to sync user {} to Keycloak: {}", user.getUsername(), e.getMessage());
         }

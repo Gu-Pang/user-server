@@ -3,11 +3,13 @@ package org.gupang.user.Presentation;
 import java.util.Map;
 import java.util.UUID;
 
+import org.gupang.common.entity.UserRole;
 import org.gupang.user.Application.UserService;
 import org.gupang.user.Application.Dto.postLoginRequestDto;
 import org.gupang.user.Application.Dto.postLoginResponseDto;
 import org.gupang.user.Application.Dto.postSignUpRequestDto;
 import org.gupang.user.Application.Dto.postSignUpResponseDto;
+import org.gupang.user.Presentation.Dto.UserPrincipal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,7 +38,7 @@ public class UserController {
     // 업체 유저 가입 신청
     @PostMapping("/users")
     public ResponseEntity<postSignUpResponseDto> signUpCompany(@Valid @RequestBody postSignUpRequestDto requestDto) {
-        requestDto.setRole("COMPANY");
+        requestDto.setRole(UserRole.COMPANY);
         return ResponseEntity.ok(userService.signUp(requestDto));
     }
 
@@ -44,8 +46,8 @@ public class UserController {
     @PostMapping("/admin/users")
     @PreAuthorize("hasAuthority('ROLE_MASTER')") // 오직 MASTER 권한자만 가능, 허브 관리자거는 따로 만들어야 할듯
     public ResponseEntity<postSignUpResponseDto> signUpMaster(@Valid @RequestBody postSignUpRequestDto requestDto) {
-        if (requestDto.getRole() == null || requestDto.getRole().isBlank()) {
-            requestDto.setRole("DELIVERY");
+        if (requestDto.getRole() == null) {
+            requestDto.setRole(UserRole.DELIVERY);
         }
         return ResponseEntity.ok(userService.signUp(requestDto));
     }
@@ -62,14 +64,16 @@ public class UserController {
     // 로그인 테스트용
     @GetMapping("/auth/test")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<String> getMyInfo(@AuthenticationPrincipal String username,
+    public ResponseEntity<String> getMyInfo(@AuthenticationPrincipal UserPrincipal principal,
             @RequestHeader Map<String, String> headers) {
         log.info("헤더들: {}", headers);
-        return ResponseEntity.ok("로그인 ID : " + username);
+        return ResponseEntity.ok("UUID : " + principal.getUserId()
+                + " / 로그인 ID : " + principal.getUsername());
     }
 
     // 유저 삭제
     @DeleteMapping("/admin/users/{userId}")
+    @PreAuthorize("hasAuthority('ROLE_MASTER')")
     public ResponseEntity<Void> delete(@PathVariable UUID userId) {
         userService.delete(userId);
         return ResponseEntity.noContent().build();

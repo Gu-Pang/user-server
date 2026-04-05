@@ -1,5 +1,6 @@
 package org.gupang.user.Application.Dto;
 
+import java.util.UUID;
 import org.gupang.common.entity.UserRole;
 import org.gupang.user.Domain.Entity.User;
 import org.gupang.user.Domain.Entity.UserStatus;
@@ -38,12 +39,17 @@ public class postSignUpRequestDto {
     @Email(message = "올바른 이메일 형식이 아닙니다.")
     private String email;
 
-    private String role;
+    private UserRole role;
+
+    @NotBlank(message = "Slack ID는 필수 입력 값입니다.")
+    private String slackId;
 
     public User toEntity(String encodedPassword,
             UserRole userRole,
-            UserStatus initialStatus) {
+            UserStatus initialStatus,
+            UUID userId) {
         return User.builder()
+                .userId(userId)
                 .username(this.username)
                 .password(encodedPassword)
                 .firstName(this.firstName)
@@ -51,6 +57,7 @@ public class postSignUpRequestDto {
                 .email(this.email)
                 .role(userRole)
                 .status(initialStatus)
+                .slackId(this.slackId)
                 .build();
     }
 }

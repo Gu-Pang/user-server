@@ -28,7 +28,6 @@ import org.gupang.user.Domain.Exception.UserErrorCode;
 public class User extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "user_id")
     private UUID userId;
 
@@ -58,8 +57,7 @@ public class User extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(unique = true)
-    private String keycloakId;
+
 
     public void validateUserStatus() {
         if (this.status == UserStatus.PENDING) {

@@ -24,7 +24,7 @@ public class postSignUpResponseDto {
     private UserRole role;
     private UserStatus status;
     private String slackId;
-    private String keycloakId;
+
 
     public static postSignUpResponseDto from(User user) {
         return postSignUpResponseDto.builder()
@@ -36,7 +36,6 @@ public class postSignUpResponseDto {
                 .role(user.getRole())
                 .status(user.getStatus())
                 .slackId(user.getSlackId())
-                .keycloakId(user.getKeycloakId())
                 .build();
     }
 }

@@ -57,17 +57,27 @@ public class UserService {
 
     @Transactional
     public postSignUpResponseDto signUp(postSignUpRequestDto requestDto) {
-        UserRole userRole = UserRole.valueOf(requestDto.getRole().toUpperCase());
+        UserRole userRole = requestDto.getRole();
         UserStatus initialStatus = UserStatus.fromRole(userRole);
 
-        // DTO->Entity
-        User user = requestDto.toEntity(passwordEncoder.encode(requestDto.getPassword()), userRole, initialStatus);
-
+        // Keycloak user 생성
         String keycloakId = keycloakService.createUser(requestDto);
-        user.setKeycloakId(keycloakId);
 
-        // Entity->DTO
-        return postSignUpResponseDto.from(userRepository.save(user));
+        try {
+            // DTO->Entity
+            User user = requestDto.toEntity(
+                    passwordEncoder.encode(requestDto.getPassword()),
+                    userRole,
+                    initialStatus,
+                    UUID.fromString(keycloakId));
+
+            // Entity->DTO
+            return postSignUpResponseDto.from(userRepository.save(user));
+        } catch (Exception e) {
+            log.error("Failed to save user in DB. Rolling back Keycloak user: {}", keycloakId, e);
+            keycloakService.deleteUser(keycloakId);
+            throw e;
+        }
     }
 
     @Transactional
@@ -75,7 +85,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
 
-        keycloakService.deleteUser(user.getKeycloakId());
+        keycloakService.disableUser(user.getUserId().toString());
 
         userRepository.delete(user);
     }

@@ -70,7 +70,7 @@ public class KeycloakService {
         kcUser.setFirstName(requestDto.getFirstName());
         kcUser.setLastName(requestDto.getLastName());
         kcUser.setRequiredActions(Collections.emptyList());
-        kcUser.setAttributes(Map.of(KC_ROLE_ATTRIBUTE, List.of(requestDto.getRole().toUpperCase())));
+        kcUser.setAttributes(Map.of(KC_ROLE_ATTRIBUTE, List.of(requestDto.getRole().name())));
 
         RealmResource realmResource = keycloakAdmin.realm(realm);
         Response response = realmResource.users().create(kcUser);
@@ -96,7 +96,23 @@ public class KeycloakService {
         return keycloakId;
     }
 
-    // Keycloak user 삭제
+    // Keycloak user 비활성화 (Soft Delete용)
+    public void disableUser(String keycloakId) {
+        if (keycloakId == null)
+            return;
+
+        try {
+            RealmResource realmResource = keycloakAdmin.realm(realm);
+            UserRepresentation kcUser = realmResource.users().get(keycloakId).toRepresentation();
+            kcUser.setEnabled(false);
+            realmResource.users().get(keycloakId).update(kcUser);
+        } catch (Exception e) {
+            log.error("Failed to disable user in Keycloak: {}", keycloakId, e);
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Keycloak user 삭제 (signup 트랜잭션 롤백용. keycloakId를 먼저 가져와야되서 순서 바꾸는거로는 안됨)
     public void deleteUser(String keycloakId) {
         if (keycloakId == null)
             return;
@@ -104,8 +120,7 @@ public class KeycloakService {
         try {
             keycloakAdmin.realm(realm).users().get(keycloakId).remove();
         } catch (Exception e) {
-            log.error("Failed to remove user from Keycloak: {}", keycloakId, e);
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+            log.error("Failed to delete user in Keycloak for rollback: {}", keycloakId, e);
         }
     }
 }
