@@ -51,23 +51,22 @@ public class UserService {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
 
+        // Map->DTO
         return postLoginResponseDto.of(tokenResponse);
     }
 
     @Transactional
     public postSignUpResponseDto signUp(postSignUpRequestDto requestDto) {
-        // Role 결정 및 초기 Status 결정
         UserRole userRole = UserRole.valueOf(requestDto.getRole().toUpperCase());
         UserStatus initialStatus = UserStatus.fromRole(userRole);
 
-        // 로컬 DB 유저 객체 생성
+        // DTO->Entity
         User user = requestDto.toEntity(passwordEncoder.encode(requestDto.getPassword()), userRole, initialStatus);
 
-        // Keycloak 사용자 생성 및 ID 설정
         String keycloakId = keycloakService.createUser(requestDto);
         user.setKeycloakId(keycloakId);
 
-        // DB 저장 및 응답 DTO 반환
+        // Entity->DTO
         return postSignUpResponseDto.from(userRepository.save(user));
     }
 
