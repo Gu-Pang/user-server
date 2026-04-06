@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.gupang.common.exception.CustomException;
 import org.gupang.common.exception.ErrorCode;
-import org.gupang.user.Application.Dto.postSignUpRequestDto;
+import org.gupang.user.Application.Dto.postUserRequestDto;
 import org.gupang.user.Infrastructure.Client.KeycloakClient;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -61,7 +61,7 @@ public class KeycloakService {
     }
 
     // Keycloak user 생성
-    public String createUser(postSignUpRequestDto requestDto) {
+    public String createUser(postUserRequestDto requestDto) {
         UserRepresentation kcUser = new UserRepresentation();
         kcUser.setUsername(requestDto.getUsername());
         kcUser.setEmail(requestDto.getEmail());

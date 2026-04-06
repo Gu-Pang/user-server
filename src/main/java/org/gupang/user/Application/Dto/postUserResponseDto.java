@@ -1,7 +1,6 @@
 package org.gupang.user.Application.Dto;
 
 import java.util.UUID;
-
 import org.gupang.common.entity.UserRole;
 import org.gupang.user.Domain.Entity.User;
 import org.gupang.user.Domain.Entity.UserStatus;
@@ -15,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class postSignUpResponseDto {
+public class postUserResponseDto {
     private UUID userId;
     private String username;
     private String firstName;
@@ -24,10 +23,10 @@ public class postSignUpResponseDto {
     private UserRole role;
     private UserStatus status;
     private String slackId;
+    private UUID hubId;
 
-
-    public static postSignUpResponseDto from(User user) {
-        return postSignUpResponseDto.builder()
+    public static postUserResponseDto from(User user) {
+        return postUserResponseDto.builder()
                 .userId(user.getUserId())
                 .username(user.getUsername())
                 .firstName(user.getFirstName())
@@ -36,6 +35,7 @@ public class postSignUpResponseDto {
                 .role(user.getRole())
                 .status(user.getStatus())
                 .slackId(user.getSlackId())
+                .hubId(user.getHubId())
                 .build();
     }
 }
