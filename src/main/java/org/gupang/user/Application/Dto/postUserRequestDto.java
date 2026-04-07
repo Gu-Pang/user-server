@@ -19,7 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class postSignUpRequestDto {
+public class postUserRequestDto {
 
     @NotBlank(message = "아이디는 필수 입력 값입니다.")
     @Pattern(regexp = "^[a-z0-9]{4,10}$", message = "아이디는 4자 이상 10자 이하로 입력해주세요. (알파벳 소문자, 숫자만 가능)")
@@ -44,6 +44,10 @@ public class postSignUpRequestDto {
     @NotBlank(message = "Slack ID는 필수 입력 값입니다.")
     private String slackId;
 
+    private UUID hubId;
+
+    private postDeliveryManagerRequestDto deliveryInfo;
+
     public User toEntity(String encodedPassword,
             UserRole userRole,
             UserStatus initialStatus,
@@ -58,6 +62,7 @@ public class postSignUpRequestDto {
                 .role(userRole)
                 .status(initialStatus)
                 .slackId(this.slackId)
+                .hubId(this.hubId)
                 .build();
     }
 }
